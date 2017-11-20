@@ -9,9 +9,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
+import java.util.StringJoiner;
 
 @Controller
 public class IndexController {
+  public static final int AMOUNT_TO_SHOW = 3;
   private FlashCardService flashCardService;
 
   @Autowired
@@ -21,20 +23,23 @@ public class IndexController {
 
   @RequestMapping("/")
   public String index(Model model) {
-    StringBuilder ctaBuilder = new StringBuilder();
-    List<FlashCard> cards = flashCardService.getRandomFlashCards(5);
-    ctaBuilder.append("Refresh your memory about ");
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append("Refresh your memory about ");
+
+    List<FlashCard> cards = flashCardService.getRandomFlashCards(AMOUNT_TO_SHOW);
+    StringJoiner stringJoiner = new StringJoiner(", ");
     for (FlashCard card : cards) {
-      ctaBuilder.append(card.getTerm());
-      if (card != cards.get(cards.size() - 1)) {
-        ctaBuilder.append(", ");
-      }
+      stringJoiner.add(card.getTerm());
     }
-    ctaBuilder.append(" and ");
-    Long totalCount = flashCardService.getCurrentCount();
-    ctaBuilder.append(totalCount);
-    ctaBuilder.append(" more");
-    model.addAttribute("cta", ctaBuilder.toString());
+
+    stringBuilder.append(stringJoiner.toString());
+    stringBuilder.append(" and ");
+
+    Long totalCount = flashCardService.getCurrentCount() - AMOUNT_TO_SHOW;
+    stringBuilder.append(totalCount);
+    stringBuilder.append(" more");
+
+    model.addAttribute("cta", stringBuilder.toString());
     model.addAttribute("flashCardCount", totalCount);
     return "index";
   }
