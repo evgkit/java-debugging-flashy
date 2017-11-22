@@ -31,13 +31,14 @@ public class IndexController {
     for (FlashCard card : cards) {
       stringJoiner.add(card.getTerm());
     }
-
     stringBuilder.append(stringJoiner.toString());
-    stringBuilder.append(" and ");
 
-    Long totalCount = flashCardService.getCurrentCount() - AMOUNT_TO_SHOW;
-    stringBuilder.append(totalCount);
-    stringBuilder.append(" more");
+    Long totalCount = flashCardService.getCurrentCount();
+    if (totalCount > AMOUNT_TO_SHOW) {
+      stringBuilder.append(" and ");
+      stringBuilder.append(totalCount - AMOUNT_TO_SHOW);
+      stringBuilder.append(" more");
+    }
 
     model.addAttribute("cta", stringBuilder.toString());
     model.addAttribute("flashCardCount", totalCount);
