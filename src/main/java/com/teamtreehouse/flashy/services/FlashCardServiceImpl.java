@@ -6,8 +6,10 @@ import com.teamtreehouse.flashy.repositories.FlashCardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -52,17 +54,21 @@ public class FlashCardServiceImpl implements FlashCardService {
   @Override
   public FlashCard getNextFlashCardBasedOnViews(Map<Long, Long> idToViewCounts) {
     FlashCard card = getNextUnseenFlashCard(idToViewCounts.keySet());
-    if (card != null) {
-      return card;
-    }
+    return card == null ? getLeastViewedFlashCard(idToViewCounts) : card;
+  }
 
-    Map.Entry<Long, Long> min = idToViewCounts.entrySet().iterator().next();
-    for (Map.Entry<Long, Long> entry : idToViewCounts.entrySet()) {
-      if (entry.getValue() < min.getValue()) {
-        min = entry;
-      }
+  public FlashCard getLeastViewedFlashCard(Map<Long, Long> idToViewCounts) {
+    List<Map.Entry<Long, Long>> entryList = new ArrayList<>(idToViewCounts.entrySet());
+    Collections.shuffle(entryList);
+    try {
+      return entryList.stream()
+          .min(Comparator.comparing(Map.Entry::getValue))
+          .map(entry -> flashCardRepository.findOne(entry.getKey()))
+          .orElseThrow(IllegalAccessException::new);
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+      return null;
     }
-    return flashCardRepository.findOne(min.getKey());
   }
 
   @Override

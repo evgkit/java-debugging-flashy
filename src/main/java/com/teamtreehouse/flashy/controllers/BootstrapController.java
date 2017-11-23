@@ -113,6 +113,6 @@ public class BootstrapController {
         }
       }
     }
-    workLog.track("Created %d new issues in your repoository", issueCount);
+    workLog.track("Created %d new issues in your repository", issueCount);
   }
 }
