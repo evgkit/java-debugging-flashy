@@ -55,19 +55,14 @@ public class FlashCardServiceImpl implements FlashCardService {
     if (card != null) {
       return card;
     }
-    Long leastViewedId = null;
+
+    Map.Entry<Long, Long> min = idToViewCounts.entrySet().iterator().next();
     for (Map.Entry<Long, Long> entry : idToViewCounts.entrySet()) {
-      if (leastViewedId == null) {
-        leastViewedId = entry.getKey();
-        continue;
+      if (entry.getValue() < min.getValue()) {
+        min = entry;
       }
-      Long lowestScore = idToViewCounts.get(leastViewedId);
-      if (entry.getValue() >= lowestScore) {
-        break;
-      }
-      leastViewedId = entry.getKey();
     }
-    return flashCardRepository.findOne(leastViewedId);
+    return flashCardRepository.findOne(min.getKey());
   }
 
   @Override
